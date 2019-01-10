@@ -10,22 +10,31 @@ var app = new Vue({
 		}
 	},
 	methods: {
-		getActivity: function () {
-			fetch('https://api.fitbit.com/1/user/' + this.fitbitUserID + '/sleep/date/' + moment().format('YYYY-MM-DD') + '.json', this.fitbitRequestOptions)
+		getSleep: function () {
+			// get last seven days of sleep data
+			fetch('https://api.fitbit.com/1.2/user/' + this.fitbitUserID + '/sleep/date/' + moment().subtract(7, 'd').format('YYYY-MM-DD') + '/' + moment().format('YYYY-MM-DD') + '.json', this.fitbitRequestOptions)
 				.then(response => {
 					return response.json();
 				}).then(data => {
 					// Work with JSON data here
-					console.log(data);
+					var i = 0;
+					var hoursSlept = [];
+					while (data.sleep[i] !== undefined) {
+						hoursSlept[i] = ((data.sleep[i].minutesAsleep) / 60).toFixed(1);
+						i++;
+					}
+					console.log(hoursSlept);
 				}).catch(err => {
 					// Do something for an error here
+					console.log("No valid data to work with.")
 				});
 
 		},
+
 	},
 	created() {
 		let vm = this;
-		this.getActivity();
+		this.getSleep();
 	}
 });
 var chartComponent = app.$refs.chart;
